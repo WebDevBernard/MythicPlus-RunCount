@@ -35,9 +35,9 @@ const Header: FC<{
         <span className={classes.season}>{expansionTag}</span>
         {/* <p className={classes.update}>Next update {updateDate()} 12:00PM PST</p> */}
         <p className={classes.update}>
-          This project is no longer maintained. You can see how the backend
-          worked via Github. I originally had it setup using AWS
-          Lambda/DynamoDB/Eventbridge.
+          This project is no longer maintained. The original backend, built with
+          AWS Lambda, DynamoDB, and EventBridge, is available for reference on
+          GitHub.
         </p>
       </div>
       <p className={classes.description}>Data comes from Raider.io API.</p>

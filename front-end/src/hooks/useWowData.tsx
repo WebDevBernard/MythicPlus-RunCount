@@ -20,66 +20,47 @@ const useWowData = (expansionName: string, season: number) => {
   const [error, setError] = useState<string | null>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<IProps[]>([]);
+
   useEffect(() => {
     const fetchData = async () => {
-      // try {
-      //   const response = await fetch(process.env.REACT_APP_API_URL!, {
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //   });
-      //   if (!response.ok) {
-      //     throw response;
-      //   }
-      // const responseData = await response.json();
       const responseData = mockData;
 
-      // filter array for the current expansion then current season and finally sort by the week
+      // Filter and sort
       const filterExpansionSeason = responseData
-        .filter((item: IProps) => {
-          return item.expansion === expansionName;
-        })
-        .filter((item: IProps) => {
-          return item.season === season;
-        })
+        .filter((item: IProps) => item.expansion === expansionName)
+        .filter((item: IProps) => item.season === season)
         .sort((a: IProps, b: IProps) => a.week - b.week);
 
-      // helper function to find week in findSchedule
-      const filterWeekByIndex = (week: number) => {
-        return filterExpansionSeason.findIndex(
-          (obj: IProps) => obj.week === week
-        );
-      };
+      // ✅ REMOVE the cumulative sum step - data is already cumulative per affix!
 
-      // map new key value onto a new array
-      const findSchedule = filterExpansionSeason.map((obj: IProps) => {
-        if (obj.week >= 11) {
+      // Calculate weekly totals by subtracting previous occurrence of same affix
+      const weeklyTotals = filterExpansionSeason.map((obj: IProps) => {
+        // Find previous occurrence of the same affix
+        const previousIndex = filterExpansionSeason.findIndex(
+          (item: IProps, idx: number) =>
+            idx < filterExpansionSeason.indexOf(obj) && item.affix === obj.affix
+        );
+
+        if (previousIndex === -1) {
+          // First occurrence of this affix - use total as-is
+          return { ...obj };
+        } else {
+          // Subtract previous occurrence to get this week's runs
           return {
             ...obj,
-            total:
-              filterExpansionSeason[filterWeekByIndex(obj.week)].total -
-              filterExpansionSeason[filterWeekByIndex(obj.week - 10)].total,
+            total: obj.total - filterExpansionSeason[previousIndex].total,
           };
-        } else {
-          return { ...obj };
         }
       });
 
-      setData(findSchedule);
+      setData(weeklyTotals);
       setLoading(false);
-      // } catch (error) {
-      //   setError(error.message);
-      //   setLoading(false);
-      // }
     };
 
     fetchData();
   }, [expansionName, season]);
-  return {
-    loading,
-    error,
-    data,
-  };
+
+  return { loading, error, data };
 };
 
 export default useWowData;
