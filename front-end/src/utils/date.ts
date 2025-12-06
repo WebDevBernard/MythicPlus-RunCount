@@ -1,12 +1,16 @@
 import { startDate } from "../App";
-import moment from "moment";
+import dayjs from "dayjs";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+
+dayjs.extend(advancedFormat);
+
 // calculates date 1 week from today
 // https://codereview.stackexchange.com/questions/33527/find-next-occurring-friday-or-any-dayofweek
 const today = new Date();
 export function updateDate() {
   const resultDate = new Date(today.getTime() - 8 * 1000 * 60 * 60);
   resultDate.setDate(today.getDate() + ((7 + 5 - today.getDay() - 1) % 7) + 1);
-  return moment(resultDate).format("MMMM Do YYYY");
+  return dayjs(resultDate).format("MMMM Do YYYY");
 }
 
 // get the affix date 7 days from the start date entered in app
@@ -18,5 +22,5 @@ export const affixDate = (index: number) => {
     today.getMonth(),
     today.getDate() + 7 * index
   );
-  return moment(nextWeek).format("MMMM Do");
+  return dayjs(nextWeek).format("MMMM Do");
 };
